@@ -1,10 +1,10 @@
 ---
 layout: default
-title: "My First TryHackMe Writeup - [Silver Platter]"
+title: "TryHackMe: SilverPlatter Walkthrough (Easy)"
 date: 2025-07-16
 ---
 
-# TryHackMe: SilverPlatter Walkthrough
+# TryHackMe: SilverPlatter Walkthrough (Easy)
 
 ## Overview
 Brief description of the room and difficulty...
