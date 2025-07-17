@@ -4,7 +4,7 @@ title: "My First TryHackMe Writeup - [Silver Platter]"
 date: 2025-07-16
 ---
 
-# [Silver Platter] - TryHackMe Walkthrough
+# TryHackMe: SilverPlatter Walkthrough
 
 ## Overview
 Brief description of the room and difficulty...
