@@ -7,7 +7,7 @@ date: 2025-07-16
 # SilverPlatter Walkthrough (Easy)
 
 ## Overview
-As part of the class "Introduction to Hacking Methodology" <https://academy.simplycyber.io/courses/enrolled/2738604> 
+As part of the class "Introduction to Hacking Methodology" <https://academy.simplycyber.io/p/introduction-to-hacking-methodology> 
 I took these notes while hacking a machine called silver-platter:
 <https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143?source=copy_link>
 
