@@ -9,7 +9,7 @@ date: 2025-07-16
 ## Overview
 As part of the class "Introduction to Hacking Methodology" <https://academy.simplycyber.io/courses/enrolled/2738604> 
 I took these notes while hacking a machine called silver-platter:
-<https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143#23446f98ca308031add6f8bad2bd6a29>
+<https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143?source=copy_link>
 
 This is an introductory class and its difficulty is very low; still, this is the first machine that I managed to hack (with some help) and I am very proud of it, so to give back to the community, I am putting this page together. My main focus is not as much on listiong the commands I typed, but also in highlighting my train of thought while working on it.
 
