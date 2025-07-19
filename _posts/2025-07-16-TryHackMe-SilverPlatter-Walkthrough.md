@@ -44,12 +44,11 @@ HOP RTT       ADDRESS
 
 From the TRACEROUTE section we see that the domain name is silverplatter.thm with IPv4 address 10.10.160.74
 
-Action: we add both the domain and the IPv4 address to the /etc/hosts file, so we will be better able to reuse our commands even if IP address of the VM changes (because the VM's timeout expires):
+Action: we add both the domain and the IPv4 address to the /etc/hosts file, so we will be better able to reuse our commands even if the IP address of the VM changes (because the VM's timeout expires):
 
 /etc/hosts
-[...]
+==========
 <ipv4-address> TAB silverplatter.thm
-[...]
 
 Notice that there should be a TAB at the end of the IPv4 address.
 
