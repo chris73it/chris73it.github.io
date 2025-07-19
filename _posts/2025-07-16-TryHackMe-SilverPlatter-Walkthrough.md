@@ -48,7 +48,7 @@ Action: we add both the domain and the IPv4 address to the /etc/hosts file, so w
 
 /etc/hosts
 [...]
-<ipv4-address> <-tab-> silverplatter.thm
+<ipv4-address> TAB silverplatter.thm
 [...]
 
 Notice that there should be a TAB at the end of the IPv4 address.
