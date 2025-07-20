@@ -83,7 +83,7 @@ In short:
 From the port scanning output we gather that nginx (static web server) is on version 1.18.0 and that the operating system is Ubuntu Linux.
 
 ### Any nginx vulnerabilities?
-We should look for vulnerabilities for version 1.18.0 of nginx, 
+We should look for vulnerabilities for version 1.18.0 of nginx, but in this case, after extensive googling, I couldn't find any exploitable vulnerability, so we move on.
 
 ### silverplatter.thm:80
 Since on port 80 we have a web server, the first thing we are going to do is to point a web browser to http://silverplatter.thm:80 and visually check the web site.
