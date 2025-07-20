@@ -165,7 +165,37 @@ From the above output we see that **adipiscing** is the correct password for scr
 ## 8080/tcp (http-proxy) [part 2]
 After browsing to http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp we enter **scr1ptkiddy** and **adipiscing**:
 
-![Silverpeas Login Window](../assets/silverpeas-login-window.png)
+![Silverpeas Login Window](../assets/silverpeas-login-window.webp)
+
+We get to enter inside the Silverpeas server and we notice that there is a notification waiting for us in the top left corner:
+
+![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-main-menu.webp)
+
+Then if we click on the See more link …
+
+![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-see-more-link.webp)
+
+… we land on this page
+
+![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-inbox.webp)
+
+Now, when we click on the Game Night link, a window opens …
+
+![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-idor.webp)
+
+… that shows an opportunity for a potential IDOR attack by changing the value of ReadMessage.
+We can systematically try all values starting from 1 and going up, and as soon as we get to 6 we find an important message
+
+![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-tim-ssh.webp)
+
+From here we gather the following information:
+- there is an SSH login and password
+- username: tim
+- password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
+
+So now we know two users with their respective passwords:
+1. scr1ptkiddy for the Silverpeas server located at http://silverplatter.thm:8080
+2. tim for the SSH server
 
 # Exploitation (use information gathered during reconnaissance)
 Step-by-step walkthrough...
