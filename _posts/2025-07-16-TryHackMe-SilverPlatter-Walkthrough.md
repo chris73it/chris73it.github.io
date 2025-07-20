@@ -8,7 +8,7 @@ date: 2025-07-16
 
 ## Overview
 As part of the class [Introduction to Hacking Methodology](https://academy.simplycyber.io/p/introduction-to-hacking-methodology)
-I took these notes while hacking a machine called [silver-platter](https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143?source=copy_link)
+I took [these notes](https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143?source=copy_link) while hacking a machine called silver-platter.
 
 This is an introductory class and the difficulty of the Linux machine is fairly low; still, this is the first mtime that I have managed to hack one (with some help from one video) and I am very proud of it, so I decided to put this page together to help other students like me. My main focus is in highlighting the reasoning behind the commands, as opposed to simply listing all the required steps without justification or context.
 
