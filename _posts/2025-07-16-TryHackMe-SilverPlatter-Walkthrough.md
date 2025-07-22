@@ -172,6 +172,9 @@ Notice that also hydra takes /silverpeas/AuthenticationServlet as input, because
 
 From the above output we see that **adipiscing** is the correct password for scr1ptkiddy.
 
+# Exploitation (use information gathered during reconnaissance)
+Now, we get to use some of the information we gained during the reconnaissance (information gathering) phase.
+
 ## 8080/tcp (http-proxy) [part 2]
 After browsing to http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp we enter **scr1ptkiddy** and **adipiscing**:
 
@@ -206,9 +209,6 @@ From here we gather the following information:
 So now we know two users with their respective passwords:
 1. scr1ptkiddy for the Silverpeas server located at http://silverplatter.thm:8080
 2. tim for the SSH server
-
-# Exploitation (use information gathered during reconnaissance)
-Step-by-step walkthrough...
 
 
 # Lessons Learned
