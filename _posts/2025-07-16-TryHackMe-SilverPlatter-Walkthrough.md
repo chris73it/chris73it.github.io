@@ -80,7 +80,8 @@ rtt min/avg/max/mdev = 190.082/201.316/212.550/11.234 ms
 
 Yes, we can ping the targer machine (notice that ping's output tells us the actual IP address is 10.10.105.52).
 
-#### Note: Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
+#### Note
+Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
 
 ## 22/tcp (ssh) OpenSSH 8.9p1
 From the port scanning output we gather that OpenSSH is on version 8.9p1 .
