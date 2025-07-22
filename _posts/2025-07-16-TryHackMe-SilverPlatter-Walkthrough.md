@@ -190,7 +190,7 @@ So, putting all of the above together (plus the fact that 8080 is the appropriat
 Notice that also hydra takes /silverpeas/AuthenticationServlet as input, because it is submitting a POST request to the actual processing endpoint (AuthenticationServlet) that processes the login attempt.
 
 What is ^USER^ ? In our scenario, ^USER^ is scr1ptkiddy, passed to hydra using the -l parameter.
-What is ^PASS^ ? One by one, it assumes the values of the various passwords in the silverplatter_keywords.txt file, passed to hydra using the -P paramerter.
+What is ^PASS^ ? One by one, it assumes the values of the various passwords in the silverplatter_keywords.txt file, passed to hydra using the -P parameter.
 
 For instance, when ^USER^ is scr1ptkiddy and ^PASS^ is adipiscing, the command passed to /silverpeas/AuthenticationServlet becomes:
 
