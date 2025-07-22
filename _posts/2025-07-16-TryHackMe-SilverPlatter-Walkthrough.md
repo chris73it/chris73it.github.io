@@ -107,11 +107,11 @@ We should look for vulnerabilities for version 1.18.0 of nginx, but in this case
 ### silverplatter.thm:80
 Since on port 80 we have a web server, the first thing we are going to do is to point our web browser to http://silverplatter.thm:80 and visually check the web site.
 
-![Silverplatter's front page](../assets/silverplatter-web-site.png)
+![Silverplatter's front page](/assets/silverplatter-web-site.png)
 
 Clicking on the **CONTACT** link we access this juicy piece of information disclosure:
 
-![Silverplatter's CONTACT page](../assets/silverplatter-web-site-contact.png)
+![Silverplatter's CONTACT page](/assets/silverplatter-web-site-contact.png)
 
 From the page above we collect the following information:
 - Username: scr1ptkiddy
@@ -208,28 +208,28 @@ Now, we get to use some of the information we gained during the reconnaissance (
 ## 8080/tcp (http-proxy)
 After browsing to http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp we enter **scr1ptkiddy** and **adipiscing**:
 
-![Silverpeas Login Window](../assets/silverpeas-login-window.webp)
+![Silverpeas Login Window](/assets/silverpeas-login-window.webp)
 
 We get to enter inside the Silverpeas server and we notice that there is a notification waiting for us in the top left corner:
 
-![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-main-menu.webp)
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-main-menu.webp)
 
 Then if we click on the See more link …
 
-![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-see-more-link.webp)
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-see-more-link.webp)
 
 … we land on this page
 
-![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-inbox.webp)
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-inbox.webp)
 
 Now, when we click on the Game Night link, a window opens …
 
-![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-idor.webp)
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-idor.webp)
 
 … that shows an opportunity for a potential IDOR attack by changing the value of ReadMessage.
 We can systematically try all values starting from 1 and going up, and as soon as we get to 6 we find an important message
 
-![Silverpeas Login Window](../assets/silverpeas-scr1ptkiddy-tim-ssh.webp)
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-tim-ssh.webp)
 
 From here we gather the following information:
 - there is an SSH login and password
