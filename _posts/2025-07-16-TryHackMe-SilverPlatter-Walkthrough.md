@@ -1,10 +1,10 @@
 ---
 layout: default
-title: "TryHackMe: SilverPlatter Walkthrough (Easy)"
+title: "TryHackMe: SilverPlatter Walkthrough (Difficulty Easy; Linux machine)"
 date: 2025-07-16
 ---
 
-# SilverPlatter Walkthrough (Easy)
+# SilverPlatter Walkthrough (Difficulty Easy; Linux machine)
 
 # Overview
 As part of the class [Introduction to Hacking Methodology](https://academy.simplycyber.io/p/introduction-to-hacking-methodology)
