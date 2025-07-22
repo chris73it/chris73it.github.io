@@ -104,13 +104,11 @@ We should look for vulnerabilities for version 1.18.0 of nginx, but in this case
 ### silverplatter.thm:80
 Since on port 80 we have a web server, the first thing we are going to do is to point our web browser to http://silverplatter.thm:80 and visually check the web site.
 
+![Silverplatter's front page](../assets/silverplatter-web-site.png)
+
 Clicking on the **CONTACT** link we access this juicy piece of information disclosure:
 
-```
-Contact
-
-If you'd like to get in touch with us, please reach out to our project manager on Silverpeas. His username is "scr1ptkiddy".
-```
+![Silverplatter's CONTACT page](../assets/silverplatter-web-site-contact.png)
 
 From the page above we collect the following information:
 - Username: scr1ptkiddy
