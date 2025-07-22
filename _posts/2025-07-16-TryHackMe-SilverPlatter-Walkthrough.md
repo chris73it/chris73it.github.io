@@ -191,14 +191,16 @@ From the above output we see that **adipiscing** is the correct password for scr
 
 Notice that also hydra takes /silverpeas/AuthenticationServlet as input, because it is submitting a POST request to the actual processing endpoint (AuthenticationServlet) that processes the login attempt.
 
-What is ^USER^ ? In our scenario, ^USER^ is scr1ptkiddy, passed to hydra using the -l parameter.
-What is ^PASS^ ? One by one, it assumes the values of the various passwords in the silverplatter_keywords.txt file, passed to hydra using the -P parameter.
+What is ^USER^ in the hydra command? In our scenario, ^USER^ stands for scr1ptkiddy, passed to hydra using the -l parameter.
+
+What is ^PASS^  in the hydra command? One by one, it assumes the values of the various passwords in the silverplatter_keywords.txt file, passed to hydra using the -P parameter.
 
 For instance, when ^USER^ is scr1ptkiddy and ^PASS^ is adipiscing, the command passed to /silverpeas/AuthenticationServlet becomes:
 
 ```
 hydra -l scr1ptkiddy -P silverplatter_keywords.txt silverplatter.thm -s 8080 http-post-form "/silverpeas/AuthenticationServlet:Login=scr1ptkiddy&Password=adipiscing&DomainId=0:ErrorCode=1"
 ```
+The above command will be the one for which the backend will NOT return error.
 
 # Exploitation (use information gathered during reconnaissance)
 Now, we get to use some of the information we gained during the reconnaissance (information gathering) phase.
