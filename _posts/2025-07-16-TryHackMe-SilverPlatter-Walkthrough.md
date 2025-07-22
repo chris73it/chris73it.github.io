@@ -33,7 +33,7 @@ Do not forget to move to the /tmp directory:
 This way when we download something or try to output a new file, we will not get "permission denied" errors because we have  no write access to whatever directory we are in; this is especially relevant in our target machine, because the user "tim" we will eventually impersonate has a home directory that is owned by root, so tim himself does not have write access to his own home!
 
 ## Port Scanning
-We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; the output is very long, so for the sake of this document, we are going to cut all outputs down to their essential parts.
+We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts.
 
 ```
 ┌──(kali㉿kali)-[~]
@@ -48,22 +48,23 @@ TRACEROUTE (using port 80/tcp)
 HOP RTT       ADDRESS
 1   79.35 ms  10.6.0.1
 2   ... 3
-4   149.33 ms silverplatter.thm (10.10.160.74)
+4   149.33 ms silverplatter.thm (10.10.105.52)
 ```
 
-From the TRACEROUTE section we see that the domain name is **silverplatter.thm** with IPv4 address **10.10.160.74**
+From the TRACEROUTE section we see that the domain name is **silverplatter.thm** with IPv4 address **10.10.105.52**
 
 #### Action: Add a line to the /etc/hosts file
+The file **/etc/hosts** works as a sort of local DNS by mapping domain names to IP addresses.
 We add both the domain and the IPv4 address to the /etc/hosts file, so we will be better able to reuse our CLI commands even if the IP address of the VM changes (for instance, because the VM's timeout expires), so inside the **/etc/hosts** file we add this line:
 
 ```
-10.10.160.74    silverplatter.thm
+10.10.105.52    silverplatter.thm
 ```
 
-Of course, every time the IP address changes, we will have to keep updating it inside this file.
+Of course, every time the IP address changes, we will have to keep updating it inside this file as well.
 
 #### Action: ping silverplatter.thm
-The file **/etc/hosts** is the one that works as a sort of local DNS, so let's verify that it works by trying to ping it
+Let's verify that **/etc/hosts** works by trying to ping silverplatter.thm
 
 ```
 ┌──(kali㉿kali)-[/tmp]
@@ -77,7 +78,9 @@ PING silverplatter.thm (10.10.105.52) 56(84) bytes of data.
 rtt min/avg/max/mdev = 190.082/201.316/212.550/11.234 ms
 ```
 
-Yes, we can ping the targer machine!
+Yes, we can ping the targer machine (notice that ping's output tells us the actual IP address is 10.10.105.52).
+
+#### Note: Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
 
 ## 22/tcp (ssh) OpenSSH 8.9p1
 From the port scanning output we gather that OpenSSH is on version 8.9p1 .
