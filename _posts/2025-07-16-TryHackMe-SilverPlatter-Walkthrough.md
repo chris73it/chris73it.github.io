@@ -178,7 +178,7 @@ Notice that the curl command this time takes /silverpeas/AuthenticationServlet a
 
 From the above, we see that **ErrorCode=1** appears in Silverpeas' responses when the server rejects an incorrect password.
 
-So, putting all of the above together (plus the fact that 8080 is the appropriate port number), we get to finally write this hydra command:
+So, putting all of the above together (plus the fact that 8080 is the appropriate port number to pass to hydra), we get to finally write this hydra command:
 
 ```
 ┌──(kali㉿kali)-[/tmp]
