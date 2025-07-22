@@ -84,8 +84,7 @@ Yes, we can ping the targer machine (notice that ping's output tells us the actu
 Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
 
 ## 22/tcp (ssh) OpenSSH 8.9p1
-From the port scanning output we gather that OpenSSH is on version 8.9p1 .
-In general, ssh is not the first thing we would consider hacking, because it is very secure, and this machine is no exception, so we move on.
+From the port scanning output we gather that OpenSSH is on version 8.9p1; in general, ssh is not the first thing we would consider hacking, because it is very secure, and this machine is no exception, so we move on.
 
 ## Our Strategy for ports 80 and 8080
 Let me give you a litte bit of a foreshadow: while examining port 80, we will talk about using hydra hoping to find the password for a user named scr1ptkiddy.
