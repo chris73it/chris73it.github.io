@@ -163,7 +163,7 @@ Notice that, again, the curl command takes /silverpeas/defaultLogin.jsp as input
 
 From the above output we see that, in addition to the visible **Login** and **Password** fields, the hidden **DomainId=0** field is critical for Silverpeas authentication.
 
-Then, we also need to identify a pattern in the Silverpeas’ response that allows us to discard incorrect passwords, so we run the command below passing a "wrong password" on purpose:
+Third, we also need to identify a pattern in the Silverpeas’ response that allows us to discard incorrect passwords, so we run the command below passing a "wrong password" on purpose:
 
 (btw, wouldn't it be funny if - after innocently running it - we realized that 'wrongpassword' is the correct password..?!)
 
