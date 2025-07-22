@@ -175,7 +175,7 @@ From the above output we see that **adipiscing** is the correct password for scr
 # Exploitation (use information gathered during reconnaissance)
 Now, we get to use some of the information we gained during the reconnaissance (information gathering) phase.
 
-## 8080/tcp (http-proxy) [part 2]
+## 8080/tcp (http-proxy)
 After browsing to http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp we enter **scr1ptkiddy** and **adipiscing**:
 
 ![Silverpeas Login Window](../assets/silverpeas-login-window.webp)
