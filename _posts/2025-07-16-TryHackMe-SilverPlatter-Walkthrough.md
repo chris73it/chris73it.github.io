@@ -20,6 +20,7 @@ When you look at my solution, do not get discouraged because you fear you would 
 4. It took me 12 days to completely solve this machine and find both flags (5 days to find the first one.)
 5. Since I was stuck during the privesc phase, I had to give a peek to a video in the course that essentially says "I am not gonna tell you yet how to privesc this machine, but I am going to tell you that it has something to do with the fact that tim belongs to the adm group." Sincerely, I don't know how many times I had already looked at the logs and didn't see the password, but once I knew that the solution HAD to be in the logs, I was finally able to see it; so what did I spend the last 7 days doing? In short, chasing rabbit holes, but it does not mean that it was all for nothing, in fact I believe that trying and failing is how I will eventually learn how to hack faster and better.
 
+
 # Reconnaissance (information gathering)
 
 #### Action: Go to the /tmp directory
@@ -202,6 +203,7 @@ hydra -l scr1ptkiddy -P silverplatter_keywords.txt silverplatter.thm -s 8080 htt
 ```
 The above command will be the one for which the backend will NOT return error.
 
+
 # Exploitation (use information gathered during reconnaissance)
 Now, we get to use some of the information we gained during the reconnaissance (information gathering) phase.
 
@@ -318,10 +320,12 @@ drwxrwxrwt 12 root root 4096 Jul 23 01:24 .
 
 Notice that pretty much anybody can do anything in this directory.
 
+
 # Privilege Escalation
 
-In order to find the root flag, we need to become the administrator (root) of this machine.
-We start typing a few commands.
+In order to find the root flag, we need to become the administrator (root) of this machine, that typically means we either have to directly go from being tim to being root, or we may have to go from being tim to a number of intermediate users, until finally we can become root.
+
+We start by typing a few commands to explore the users on our target machine and figure out what they can do:
 
 ## id
 tim is part of the adm group, that means he has access to log files:
@@ -331,8 +335,8 @@ tim@silver-platter:~$ id
 uid=1001(tim) gid=1001(tim) groups=1001(tim),4(adm)
 ```
 
-# ## sudo -l
-But tim is not part of the sudo group, hence time cannot run sudo:
+## sudo -l
+But tim is not part of the sudo group, hence tim cannot run sudo:
 
 ```
 tim@silver-platter:~$ sudo -l    # 
@@ -365,7 +369,7 @@ uid=1000(tyler) gid=1000(tyler) groups=1000(tyler),4(adm),24(cdrom),27(sudo),30(
 
 Important groups:
 - tyler, like tim, is part of adm
-- tyler is part of sudo, so if we can become tyler, we can automatically also become root (!)
+- tyler is part of sudo, so if we can become tyler, we can automatically also become root by typing **sudo -i** (!!)
 
 ## Check logs
 User tyler might be the intended escalation path, or there might be information in the logs about tyler's activities, either way, since for the time being we are still tim and we are part of adm, we can check the logs looking for more information:
@@ -424,8 +428,8 @@ ps aux | grep root
 
 Key Findings from the Logs:
 1. Tyler has sudo privileges: The logs show tyler successfully running **sudo su** multiple times to become root.
-2. Tyler created the tim user: Tyler ran sudo useradd tim and sudo passwd tim .
-3. Tyler added tim to adm group: Tyler ran sudo usermod -aG adm tim .
+2. Tyler created the tim user: Tyler ran sudo useradd tim and sudo passwd tim
+3. Tyler added tim to adm group: Tyler ran sudo usermod -aG adm tim
 
 ### The Path Forward
 
@@ -455,12 +459,12 @@ find /var/log -type f -readable 2>/dev/null -exec grep -l "tyler.*password\|pass
 
 Key Findings:
 1. Tyler has sudo privileges and was created during system installation.
-2. PostgreSQL’s password found as _Zd_zx7N823/ (from the  and Silverpeas Docker containers).
+2. PostgreSQL’s password found as _Zd_zx7N823/ (from the Silverpeas Docker containers).
 
-When we find a password for a user, it is always a good idea to check whether such user did password reuse: for instance, in this case we are hoping that the user of tyler has the same password for PostgresSQL as for his ssh user:
+When we find a password for a user, it is always a good idea to check whether such user did password reuse: for instance, in this case, we are hoping that tyler reused the same password for PostgresSQL as for his ssh account:
 
 ```
-# Let's hope that tyler's user reused the same password he also used for the database
+# Let's hope that tyler reused the same password he also used for the database
 tim@silver-platter:~$ su tyler    # _Zd_zx7N823/
 Password: 
 tyler@silver-platter:/home/tim$ whoami
@@ -469,7 +473,7 @@ tyler
 
 It worked, we are tyler!
 
-Now, we can simply use tyler’s password to sudo -i our way into becoming root:
+Now, we can simply use tyler’s password _Zd_zx7N823/ to **sudo -i** our way into becoming root:
 
 ```
 tyler@silver-platter:~$ id
@@ -500,25 +504,25 @@ THM{098f6bcd4621d373cade4e832627b4f6}
 And we found the root flag as well!
 
 # How we did it
-1. Initially, we got our foot in the door by SSH'ing as tim (a user with very low privileges):
-    1. the username scr1ptkiddy found on the Contact section of the web site on http://silverplatter.thm:80
-    2. the password found through Silverpeas’ IDOR exploitation
-2. We got the user flag!
-3. Enumeration: used tim’s adm group privileges to read log files in /var/log/
-4. Information Gathering: Found tyler's Docker commands containing the database password _Zd_zx7N823/
-5. Lateral Movement: used su tyler with the reused password _Zd_zx7N823/
-6. Privilege Escalation: Used sudo -i as tyler (who has sudo privileges) with the same password_Zd_zx7N823/
-7. Root Access: Successfully obtained root shell and retrieved the root flag!
-
+1. Initially, we got our foot in the door inside Silverpeas (on port 8080) logging in via:
+   - username scr1ptkiddy found on the CONTACT section on the silverplatter.thm web site
+   - scr1ptkiddy's password found applying command cewl to the silverplatter.thm web site
+3. We leveraged an IDOR vulnerability in Silverpeas and read tim's ssh's password.
+4. We logged in as tim and got the user flag (!!)
+5. We used tim’s adm group privileges to read log files.
+6. We found tyler's Docker commands containing the database password _Zd_zx7N823/
+7. We became tyler using the password _Zd_zx7N823/ tyler also used to access the database.
+8. We used sudo -i as tyler (who has sudo privileges) with the same password _Zd_zx7N823/
+9. We obtained root shell and retrieved the root flag (!!)
 
 
 # Lessons Learned
 Key learning points:
-1. Log File Analysis: The adm group membership was crucial for accessing authentication logs.
-2. Password Reuse: Tyler reused the database password for his user account - a common security mistake.
-3. Sudo Privileges: Tyler had full sudo access, making the escalation straightforward once you had his password.
-4. Information Disclosure: Docker commands in logs revealed sensitive passwords.
+1. **Web Site Analysis** Examing the pages of the web site revealed the Silverpeas user scr1ptkiddy.
+2. **Web Site Analysis** Using the words in the pages of the web site gave us scr1ptkiddy's Silverpeas' password.
+3. **Log File Analysis** The adm group membership was crucial for accessing authentication logs.
+4. **Information Disclosure** Docker commands in logs revealed sensitive passwords.
+5. **Password Reuse** Tyler reused the database password for his user account, a common security mistake.
+6. **Sudo Privileges** Tyler had full sudo access, making the escalation straightforward once we had his password.
 
 This was a great example of how proper enumeration and log analysis can lead to successful privilege escalation.
-
-The "Silver Platter" name was quite fitting - once we found the right logs, the escalation path was relatively straightforward!
