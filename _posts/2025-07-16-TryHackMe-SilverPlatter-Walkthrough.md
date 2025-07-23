@@ -208,7 +208,7 @@ Now, we get to use some of the information we gained during the reconnaissance (
 ## 8080/tcp (http-proxy)
 After browsing to http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp we enter **scr1ptkiddy** and **adipiscing**:
 
-![Silverpeas Login Window](/assets/silverpeas-login-window.webp){: style="border: 2px solid black;"}
+![Silverpeas Login Window](/assets/silverpeas-login-window.webp)
 
 We get to enter inside the Silverpeas server and we notice that there is a notification waiting for us in the top left corner:
 
@@ -216,7 +216,7 @@ We get to enter inside the Silverpeas server and we notice that there is a notif
 
 Then if we click on the See more link …
 
-![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-see-more-link.webp){: style="border: 2px solid black;"}
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-see-more-link.webp)
 
 … we land on this page
 
@@ -224,7 +224,7 @@ Then if we click on the See more link …
 
 Now, when we click on the Game Night link, a window opens …
 
-![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-idor.webp){: style="border: 2px solid black;"}
+![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-idor.webp)
 
 … that shows an opportunity for a potential IDOR attack by changing the value of ReadMessage.
 We can systematically try all values starting from 1 and going up, and as soon as we get to 6 we find an important message
