@@ -245,7 +245,7 @@ Now that we know tim's ssh password, we can finally use it to login to our targe
 
 ```
 ┌──(kali㉿kali)-[/tmp]
-└─$ ssh tim@silverplatter.thm #Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
+└─$ ssh tim@silverplatter.thm # Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -266,7 +266,7 @@ The Warning Explains that SSH stores a "fingerprint" of each server we connect t
 This fingerprint uniquely identifies the server's cryptographic key.
 When we try to connect again, SSH compares the current fingerprint with the stored one and if they don't match, we get this warning.
 
-Normally, this would be a concern, and on a production machine we would better ask the system administrator whether things are fine, but since this is a virtual machine we are connecting to, and it is pretty common for servers to be rebuilt/reinstalled in VM environments, we can safely proceed issuing the command the warning above suggests:
+Normally, this would be a concern, and on a production machine we would better ask the system administrator whether things are fine, but since this is a virtual machine we are connecting to, and it is pretty common for servers to be rebuilt/reinstalled in VM environments, we can safely proceed issuing the command the warning above suggests; this command removes the old fingerprint of silverplatter.thm from the known_hosts file:
 
 ```
 ┌──(kali㉿kali)-[/tmp]
@@ -278,11 +278,11 @@ Normally, this would be a concern, and on a production machine we would better a
 Original contents retained as /home/kali/.ssh/known_hosts.old
 ```
 
-And we can try a second time to ssh into our target machine:
+Now, we can try to ssh again into our target machine that will prompt us to accept the new fingerprint:
 
 ```
 ┌──(kali㉿kali)-[/tmp]
-└─$ ssh tim@silverplatter.thm #Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
+└─$ ssh tim@silverplatter.thm # Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 The authenticity of host 'silverplatter.thm (10.10.30.149)' can't be established.
 ED25519 key fingerprint is SHA256:O5LFYE0hOpCy4eJPMF4wjWiJOIgxwEHxX2FF/rtjN8A.
 This key is not known by any other names.
@@ -307,8 +307,8 @@ tim@ip-10-10-30-149:~$ cat user.txt
 THM{c4ca4238a0b923820dcc509a6f75849b}
 ```
 
-Notice how tim's home is owned by root, so tim cannot write in his own home!
-This is one good reason to move to a directory where most users have write access:
+Notice how tim's home is owned by root, and cannot write in his own home!
+This is one good reason to move to a directory like **/tmp** where most users have write access:
 
 ```
 tim@ip-10-10-30-149:~$ cd /tmp
@@ -316,7 +316,7 @@ tim@ip-10-10-30-149:/tmp$ ls -lad
 drwxrwxrwt 12 root root 4096 Jul 23 01:24 .
 ```
 
-Notice that everybody can do pretty much anything in this directory.
+Notice that pretty much anybody can do anything in this directory.
 
 # Privilege Escalation
 
