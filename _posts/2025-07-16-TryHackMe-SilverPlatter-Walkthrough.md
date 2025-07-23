@@ -27,8 +27,11 @@ When you look at my solution, do not get discouraged because you fear you would 
 Do not forget to move to the **/tmp** directory:
 
 ```
-┌──(username㉿machinename)-[/~]
+┌──(username㉿machinename)-[~]
 └─$ cd /tmp
+┌──(username㉿machinename)-[/tmp]
+└─$ pwd                                                          
+/tmp
 ```
 
 This way when we download something or try to output a new file, we will not get "permission denied" errors because we have  no write access to whatever directory we are in; this is especially relevant in our target machine, because the user "tim" we will eventually impersonate has a home directory that is owned by root, so tim himself does not have write access to his own home!
