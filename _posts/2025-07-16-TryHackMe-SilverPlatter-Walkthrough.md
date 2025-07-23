@@ -40,7 +40,7 @@ This way when we download something or try to output a new file, we will not get
 We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts:
 
 ```
-┌──(kali㉿kali)-[~]
+┌──(kali㉿kali)-[/tmp]
 └─$ rustscan -a 10.10.160.74 -- -A
 
 PORT     STATE SERVICE    REASON         VERSION
