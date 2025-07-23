@@ -34,7 +34,7 @@ Do not forget to move to the **/tmp** directory:
 This way when we download something or try to output a new file, we will not get "permission denied" errors because we have  no write access to whatever directory we are in; this is especially relevant in our target machine, because the user "tim" we will eventually impersonate has a home directory that is owned by root, so tim himself does not have write access to his own home!
 
 # Port Scanning
-We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts.
+We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts:
 
 ```
 ┌──(kali㉿kali)-[~]
@@ -65,7 +65,7 @@ We add both the domain and the IPv4 address to the /etc/hosts file, so we will b
 Of course, every time the IP address changes, we will have to keep updating it inside this file as well.
 
 ### Action
-Let's verify that **/etc/hosts** works by trying to ping silverplatter.thm
+Let's verify that **/etc/hosts** works by trying to ping silverplatter.thm:
 
 ```
 ┌──(kali㉿kali)-[/tmp]
