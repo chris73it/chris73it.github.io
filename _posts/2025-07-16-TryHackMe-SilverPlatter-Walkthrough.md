@@ -99,7 +99,7 @@ So, how do we know that 8080 is the port we are supposed to use with hydra? Simp
 
 In short:
 1. We pointed the web browser to the web site behind port 80 and from its CONTACT page we discovered that there is a user scr1ptkiddy on a Silverpeas server.
-2. We got a hunch that the Silverpeas server may be located at port 8080 (where rustscan/nmap told us that an http-proxy lives), and so we pointed our web browser to http://silverplatter.thm:8080/silverpeas and discovered a login page located at **http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp** .
+2. We got a hunch that the Silverpeas server may be located at port 8080 (where rustscan/nmap told us that an http-proxy lives), and so we pointed our web browser to **http://silverplatter.thm:8080/silverpeas** and discovered a login page located at **http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp** .
 3. We now know that we need to point hydra to port 8080 to try finding the password for scr1ptkiddy.
 
 # 80/tcp (http) nginx 1.18.0 (Ubuntu)
