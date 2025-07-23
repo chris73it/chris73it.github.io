@@ -18,13 +18,13 @@ When you look at my solution, do not get discouraged because you fear you would 
 2. I used Claude AI to help me every step of the way.
 3. I am a software engineer that has been working for 25 years in Silicon Valley.
 4. It took me 12 days to completely solve this machine and find both flags (5 days to find the first one.)
-5. Since I was stuck during the privesc phase, I had to give a peek to a video in the course that essentially says "I am not gonna tell you yet how to privesc this machine, but I am going to tell you that it has something to do with the fact that tim belongs to the adm group." Sincerely, I don't know how many times I had already looked at the logs and didn't see the password, but once I knew that the solution HAD to be in the logs, I was finally able to see it; so what did I spend the last 7 days doing? In short, chasing rabbit holes, but it does not mean that it was all for nothing, in fact I believe that trying and failing is how I will eventually learn how to hack faster and better.
+5. Since I was stuck during the privilege escalation (privesc) phase, I had to give a peek to a video in the course that essentially says "I am not gonna tell you yet how to privesc this machine, but I am going to tell you that it has something to do with the fact that tim belongs to the adm group." Sincerely, I don't know how many times I had already looked at the logs and didn't see the password, but once I knew that the solution HAD to be in the logs, I was finally able to see it; so what did I spend the last 7 days doing? In short, chasing rabbit holes, but it does not mean that it was all for nothing, in fact I believe that trying and failing is how I will eventually learn how to hack faster and better.
 
 
-# Reconnaissance (information gathering)
+# Reconnaissance (Information Gathering)
 
-#### Action: Go to the /tmp directory
-Do not forget to move to the /tmp directory:
+#### Action
+Do not forget to move to the **/tmp** directory:
 
 ```
 ┌──(username㉿machinename)-[/~]
@@ -33,7 +33,7 @@ Do not forget to move to the /tmp directory:
 
 This way when we download something or try to output a new file, we will not get "permission denied" errors because we have  no write access to whatever directory we are in; this is especially relevant in our target machine, because the user "tim" we will eventually impersonate has a home directory that is owned by root, so tim himself does not have write access to his own home!
 
-## Port Scanning
+# Port Scanning
 We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts.
 
 ```
@@ -54,7 +54,7 @@ HOP RTT       ADDRESS
 
 From the TRACEROUTE section we see that the domain name is **silverplatter.thm** with IPv4 address **10.10.105.52**
 
-#### Action: Add a line to the /etc/hosts file
+### Action
 The file **/etc/hosts** works as a sort of local DNS by mapping domain names to IP addresses.
 We add both the domain and the IPv4 address to the /etc/hosts file, so we will be better able to reuse our CLI commands even if the IP address of the VM changes (for instance, because the VM's timeout expires), so inside the **/etc/hosts** file we add this line:
 
@@ -64,7 +64,7 @@ We add both the domain and the IPv4 address to the /etc/hosts file, so we will b
 
 Of course, every time the IP address changes, we will have to keep updating it inside this file as well.
 
-#### Action: ping silverplatter.thm
+### Action
 Let's verify that **/etc/hosts** works by trying to ping silverplatter.thm
 
 ```
@@ -81,14 +81,14 @@ rtt min/avg/max/mdev = 190.082/201.316/212.550/11.234 ms
 
 Yes, we can ping the targer machine (notice that ping's output tells us the actual IP address is 10.10.105.52).
 
-#### Note
+### Note
 Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
 
-## 22/tcp (ssh) OpenSSH 8.9p1 [part 1]
+# 22/tcp (ssh) OpenSSH 8.9p1 [part 1]
 From the port scanning output we gather that OpenSSH is on version 8.9p1; in general, ssh is not the first thing we would consider hacking, because it is very secure, and this machine is no exception, so we move on.
 
-## Our Strategy for ports 80 and 8080
-Let me give you a litte bit of a foreshadow: while examining port 80, we will talk about using hydra hoping to find the password for a user named scr1ptkiddy.
+# Our Strategy For Ports 80 And 8080
+Let me give you a little bit of a foreshadow: while examining port 80, we will talk about using hydra hoping to find the password for a user named scr1ptkiddy.
 
 But in order to make hydra work correctly, we will have to already know that we need to point hydra toward port 8080.
 
@@ -99,13 +99,13 @@ In short:
 2. We got a hunch that the Silverpeas server may be located at port 8080 (where rustscan/nmap told us that an http-proxy lives), and so we pointed our web browser to http://silverplatter.thm:8080/silverpeas and discovered a login page located at **http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp** .
 3. We now know that we need to point hydra to port 8080 to try finding the password for scr1ptkiddy.
 
-## 80/tcp (http) nginx 1.18.0 (Ubuntu)
+# 80/tcp (http) nginx 1.18.0 (Ubuntu)
 From the port scanning output we gather that nginx (static web server) is on version 1.18.0 and that the operating system is Ubuntu Linux.
 
-### Any nginx vulnerabilities?
+## Any nginx Vulnerabilities?
 We should look for vulnerabilities for version 1.18.0 of nginx, but in this case, after extensive googling, I couldn't find any exploitable vulnerability, so I moved on.
 
-### silverplatter.thm:80
+## silverplatter.thm:80
 Since on port 80 we have a web server, the first thing we are going to do is to point our web browser to http://silverplatter.thm:80 and visually check the web site.
 
 ![Silverplatter's front page](/assets/silverplatter-web-site.png){: style="border: 2px solid black;"}
@@ -122,25 +122,25 @@ From the page above we collect the following information:
 In short, it appears that there is a Silverpeas server with a user named **scr1ptkiddy** for whom we don't know the password yet.
 We also learn that there might be one more user that has a managerial role (no password for this user as well.)
 
-#### View Source (look at the source code)
-It is also important, when looking at a web site, to use the View Source feature available in all modern web brosers and see whether there are any obvious pieces of interesting information left by the developers in comments (things like users, passwords, and generally speaking, any type of information disclosure that would help us gain an advantage in our attempt to get into the machine.) Unfortunately, in this particular web site's source code there is nothing noteworthy to point out.
+### View Source (look at the source code)
+It is also important, when looking at a web site, to use the View Source feature available in all modern web browsers and see whether there are any obvious pieces of interesting information left by the developers in comments (things like users, passwords, and generally speaking, any type of information disclosure that would help us gain an advantage in our attempt to get into the machine.) Unfortunately, in this particular web site's source code there is nothing noteworthy to point out.
 
-#### cewl
+### cewl
 Since we know about a user named scr1ptkiddy for a Silverpeas server running on the machine we are attacking, it is worth collecting all keywords from the pages of the web site, and later use them with a program like hydra to search the password for scr1ptkiddy. Just to clarify, we are talking about collecting all the words that make the text of the http://silverplatter.thm web site and store them in a single file, one word per line, with the intention of using it later with a program like hydra to find the password for scr1ptkiddy.
 
 Here is the command to scan the web site and collect all its keywords in a file named **silverplatter_keywords.txt**:
 
 ```
 ┌──(kali㉿kali)-[/tmp]
-└─$ cewl http:silverplatter.thm > silverplatter_keywords.txt
+└─$ cewl http://silverplatter.thm > silverplatter_keywords.txt
 ```
 
 This command collects all keywords in silverplatter.thm and saves them into a file.
 
-#### hydra
-We are going to use hydra to *password spray* all the keywords in **silverplatter_keywords.txt** in an attemot to find the password for user scr1ptkiddy.
+### hydra
+We are going to use hydra to *password spray* all the keywords in **silverplatter_keywords.txt** in an attempt to find the password for user scr1ptkiddy.
 
-##### hydra requires several parameters.
+#### hydra requires several parameters
 First, we check the form's action attribute to find the real target for hydra:
 
 ```
@@ -170,7 +170,7 @@ Third, we also need to identify a pattern in the Silverpeas’ response that all
 
 ```
 ┌──(kali㉿kali)-[/tmp]
-└─$ curl -v -d "Login=scr1ptkiddy&Password=wrongpassword&DomainID=0" http://silverplatter.thm:8080/silverpeas/AuthenticationServlet
+└─$ curl -v -d "Login=scr1ptkiddy&Password=wrongpassword&DomainId=0" http://silverplatter.thm:8080/silverpeas/AuthenticationServlet
 ...
 Location: http://silverplatter.thm:8080/silverpeas/Login?ErrorCode=1&DomainId=-1
 ...
@@ -204,7 +204,7 @@ hydra -l scr1ptkiddy -P silverplatter_keywords.txt silverplatter.thm -s 8080 htt
 The above command will be the one for which the backend will NOT return error.
 
 
-# Exploitation (use information gathered during reconnaissance)
+# Exploitation (Use Information Gathered During Reconnaissance)
 Now, we get to use some of the information we gained during the reconnaissance (information gathering) phase.
 
 ## 8080/tcp (http-proxy)
@@ -339,12 +339,12 @@ uid=1001(tim) gid=1001(tim) groups=1001(tim),4(adm)
 But tim is not part of the sudo group, hence tim cannot run sudo:
 
 ```
-tim@silver-platter:~$ sudo -l    # 
+tim@silver-platter:~$ sudo -l    # cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 [sudo] password for tim: 
 Sorry, user tim may not run sudo on silver-platter.
 ```
 
-# users
+## Users
 We can look for more users on this machine:
 
 ```
@@ -371,7 +371,7 @@ Important groups:
 - tyler, like tim, is part of adm
 - tyler is part of sudo, so if we can become tyler, we can automatically also become root by typing **sudo -i** (!!)
 
-## Check logs
+## Check Logs
 User tyler might be the intended escalation path, or there might be information in the logs about tyler's activities, either way, since for the time being we are still tim and we are part of adm, we can check the logs looking for more information:
 
 ```
@@ -431,7 +431,7 @@ Key Findings from the Logs:
 2. Tyler created the tim user: Tyler ran sudo useradd tim and sudo passwd tim
 3. Tyler added tim to adm group: Tyler ran sudo usermod -aG adm tim
 
-### The Path Forward
+### The path forward
 
 Since tyler has sudo privileges and can become root, we need to find a way to either:
 1. Get tyler's password to SSH as tyler (like we did for tim by looking at Silverpeas’ scr1ptkiddy’s notifications).
@@ -503,7 +503,7 @@ THM{098f6bcd4621d373cade4e832627b4f6}
 
 And we found the root flag as well!
 
-# How we did it
+# How We Did It
 1. Initially, we got our foot in the door inside Silverpeas (on port 8080) logging in via:
    - username scr1ptkiddy found on the CONTACT section on the silverplatter.thm web site
    - scr1ptkiddy's password found applying command cewl to the silverplatter.thm web site
