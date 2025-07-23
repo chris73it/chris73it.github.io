@@ -83,7 +83,7 @@ Yes, we can ping the targer machine (notice that ping's output tells us the actu
 #### Note
 Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
 
-## 22/tcp (ssh) OpenSSH 8.9p1
+## 22/tcp (ssh) OpenSSH 8.9p1 [part 1]
 From the port scanning output we gather that OpenSSH is on version 8.9p1; in general, ssh is not the first thing we would consider hacking, because it is very secure, and this machine is no exception, so we move on.
 
 ## Our Strategy for ports 80 and 8080
@@ -237,8 +237,85 @@ From here we gather the following information:
 - password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 
 So now we know two users with their respective passwords:
-1. scr1ptkiddy for the Silverpeas server located at http://silverplatter.thm:8080
-2. tim for the SSH server
+1. **scr1ptkiddy** with password **adipiscing** for the Silverpeas server
+2. **tim** with password **cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol** for the SSH server
+
+## 22/tcp (ssh) OpenSSH 8.9p1 [part 2]
+Now that we know tim's ssh password, we can finally use it to login to our target machine:
+
+```
+┌──(kali㉿kali)-[/tmp]
+└─$ ssh tim@silverplatter.thm #Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ED25519 key sent by the remote host is
+SHA256:O5LFYE0hOpCy4eJPMF4wjWiJOIgxwEHxX2FF/rtjN8A.
+Please contact your system administrator.
+ Add correct host key in /home/kali/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in /home/kali/.ssh/known_hosts:3
+  remove with:
+  ssh-keygen -f '/home/kali/.ssh/known_hosts' -R 'silverplatter.thm'
+Host key for silverplatter.thm has changed and you have requested strict checking.
+Host key verification failed.
+```
+The Warning Explains that SSH stores a "fingerprint" of each server we connect to in our ~/.ssh/known_hosts file.
+This fingerprint uniquely identifies the server's cryptographic key.
+When we try to connect again, SSH compares the current fingerprint with the stored one and if they don't match, we get this warning.
+
+Normally, this would be a concern, and on a production machine we would better ask the system administrator whether things are fine, but since this is a virtual machine we are connecting to, and it is pretty common for servers to be rebuilt/reinstalled in VM environments, we can safely proceed issuing the command the warning above suggests:
+
+```
+┌──(kali㉿kali)-[/tmp]
+└─$ ssh-keygen -f '/home/kali/.ssh/known_hosts' -R 'silverplatter.thm'
+# Host silverplatter.thm found: line 1
+# Host silverplatter.thm found: line 2
+# Host silverplatter.thm found: line 3
+/home/kali/.ssh/known_hosts updated.
+Original contents retained as /home/kali/.ssh/known_hosts.old
+```
+
+And we can try a second time to ssh into our target machine:
+
+```
+┌──(kali㉿kali)-[/tmp]
+└─$ ssh tim@silverplatter.thm #Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
+The authenticity of host 'silverplatter.thm (10.10.30.149)' can't be established.
+ED25519 key fingerprint is SHA256:O5LFYE0hOpCy4eJPMF4wjWiJOIgxwEHxX2FF/rtjN8A.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'silverplatter.thm' (ED25519) to the list of known hosts.
+tim@silverplatter.thm's password: 
+Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.0-91-generic x86_64)
+tim@ip-10-10-30-149:~$
+```
+
+Yuppy, we are finally in! And we can get the user's flag too :)
+
+```
+tim@ip-10-10-30-149:~$ whoami
+tim
+tim@ip-10-10-30-149:~$ ls -la
+total 12
+dr-xr-xr-x 2 root root 4096 Dec 13  2023 .
+drwxr-xr-x 6 root root 4096 Jul 21 20:10 ..
+-rw-r--r-- 1 root root   38 Dec 13  2023 user.txt
+tim@ip-10-10-30-149:~$ cat user.txt 
+THM{c4ca4238a0b923820dcc509a6f75849b}
+```
+
+Notice how tim's home is owned by root, so tim cannot write in his own home!
+This is one good reason to move to a directory where most users have write access:
+
+```
+tim@ip-10-10-30-149:~$ cd /tmp
+tim@ip-10-10-30-149:/tmp$ ls -lad
+drwxrwxrwt 12 root root 4096 Jul 23 01:24 .
+```
+Notice that everybody can do pretty much anything in this directory.
 
 
 # Lessons Learned
