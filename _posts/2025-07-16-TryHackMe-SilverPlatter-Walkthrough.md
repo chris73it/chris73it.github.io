@@ -8,6 +8,12 @@ date: 2025-07-16
 # SilverPlatter Walkthrough (Difficulty Easy; Linux machine)
 
 
+# Legal Notice
+**⚠️ Educational Use Only:** This walkthrough demonstrates techniques on a TryHackMe lab machine.
+Never use these methods on systems you don't own or lack explicit permission to test.
+Unauthorized computer access is illegal and can result in criminal charges.
+
+
 # Overview
 As part of the class [Introduction to Hacking Methodology](https://academy.simplycyber.io/p/introduction-to-hacking-methodology)
 I took [these notes](https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143?source=copy_link) while hacking a machine called silver-platter.
