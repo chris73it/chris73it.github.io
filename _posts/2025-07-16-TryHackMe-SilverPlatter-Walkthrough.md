@@ -91,7 +91,7 @@ PING silverplatter.thm (10.10.105.52) 56(84) bytes of data.
 rtt min/avg/max/mdev = 190.082/201.316/212.550/11.234 ms
 ```
 
-Yes, we can ping the targer machine (notice that ping's output tells us the actual IP address is 10.10.105.52).
+Yes, we can ping the target machine (notice that ping's output tells us the actual IP address is 10.10.105.52).
 
 ### Note
 Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
