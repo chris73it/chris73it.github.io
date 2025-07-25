@@ -172,8 +172,8 @@ We also learn that there might be one more user that has a managerial role (no p
 ### View Source (look at the source code)
 It is also important, when looking at a web site, to use the View Source feature available in all modern web browsers and see whether there are any obvious pieces of interesting information left by the developers in comments (things like users, passwords, and generally speaking, any type of information disclosure that would help us gain an advantage in our attempt to get into the machine.) Unfortunately, in this particular web site's source code there is nothing noteworthy to point out.
 
-### cewl
-Since we know about a user named scr1ptkiddy for a Silverpeas server running on the machine we are attacking, it is worth collecting all keywords from the pages of the web site, and later use them with a program like hydra to search the password for scr1ptkiddy. Just to clarify, we are talking about collecting all the words that make the text of the http://silverplatter.thm web site and store them in a single file, one word per line, with the intention of using it later with a program like hydra to find the password for scr1ptkiddy.
+### cewl (Custom Word List Generation)
+Since we know about a user named scr1ptkiddy for a Silverpeas server running on the machine we are attacking, it is worth collecting all keywords from the pages of the web site silverplatter.thm, and later use them with a program like hydra to search the password for scr1ptkiddy. Just to clarify, we are talking about collecting all the words that make the text of the http://silverplatter.thm web site and store them in a single file, one word per line, with the intention of using it later with a program like hydra to find the password for scr1ptkiddy.
 
 Here is the command to scan the web site and collect all its keywords in a file named **silverplatter_keywords.txt**:
 
@@ -182,7 +182,25 @@ Here is the command to scan the web site and collect all its keywords in a file 
 └─$ cewl http://silverplatter.thm > silverplatter_keywords.txt
 ```
 
-This command collects all keywords in silverplatter.thm and saves them into a file.
+Important details:
+- By default, cewl only collects words that are 3 characters or longer
+- It removes duplicates automatically
+- It converts everything to lowercase by default
+
+Optional improvements if the default wordlist doesn't work:
+
+```
+# Include shorter words (minimum 2 characters) using the -m option
+cewl -m 2 http://silverplatter.thm > silverplatter_keywords_short.txt
+
+# Include words that contain numbers (like "admin123") using the --with-numbers option
+# (without --with-numbers: a word like "admin123" would be ignored)
+cewl --with-numbers http://silverplatter.thm > silverplatter_keywords_nums.txt
+```
+
+The 2 commands above would respectively add:
+- Two-letter words, if any are present, like "an"
+- Words with digits in them, like "admin123"
 
 ### hydra
 We are going to use hydra to *password spray* all the keywords in **silverplatter_keywords.txt** in an attempt to find the password for user scr1ptkiddy.
