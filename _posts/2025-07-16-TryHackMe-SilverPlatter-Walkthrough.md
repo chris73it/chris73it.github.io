@@ -29,6 +29,14 @@ When you look at my solution, do not get discouraged because you fear you would 
 5. Since I was stuck during the privilege escalation (privesc) phase, I had to give a peek to a video in the course that essentially says "I am not gonna tell you yet how to privesc this machine, but I am going to tell you that it has something to do with the fact that tim belongs to the adm group." Sincerely, I don't know how many times I had already looked at the logs and didn't see the password, but once I knew that the solution HAD to be in the logs, I was finally able to see it; so what did I spend the last 7 days doing? In short, chasing rabbit holes, but it does not mean that it was all for nothing, in fact I believe that trying and failing is how I will eventually learn how to hack faster and better.
 
 
+# Tools Used
+- `rustscan` - Fast port scanner
+- `cewl` - Custom wordlist generator  
+- `hydra` - Password spraying tool
+- `curl` - Web request testing
+- Standard Linux utilities (`grep`, `find`, `ping`, `ssh`, `id`, `su`, `sudo`, etc.)
+
+
 # Reconnaissance (Information Gathering)
 
 ### Action
