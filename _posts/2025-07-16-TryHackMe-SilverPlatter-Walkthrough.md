@@ -299,7 +299,7 @@ Now, when we click on the Game Night link, a window opens …
 An Insecure Direct Object Reference (IDOR) vulnerability is a type of access control flaw where an application, instead of using an indirect identifier like a session token, directly exposes references to internal objects (like database records, files, or other resources) through user-supplied input. Attackers can exploit this by manipulating these references to gain unauthorized access to other users' data or resources. 
 
 ### Note
-We can systematically try all values starting from 1 and going up, and as soon as we get to 6 we find an important message.
+We can systematically try all values of ReadMessage starting from 1 and going up, and as soon as we get to 6 we find an important message.
 
 The most straightforward way to try different values for ReadMessage is to copy the original URL:
 `http://silverplatter.thm:8080/silverpeas/RSILVERMAIL/jsp/ReadMessage.jsp?ID=5`
