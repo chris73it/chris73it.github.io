@@ -202,8 +202,8 @@ The 2 commands above would respectively add:
 - Two-letter words, if any are present, like "an"
 - Words with digits in them, like "admin123"
 
-###3 Note
-hydra (see next section) has built-in wordlists (/usr/share/wordlists/) as alternatives, so if cewl failed, we would consider using those as well.
+### Note
+hydra has built-in wordlists (located under /usr/share/wordlists/) as alternatives, so if cewl fails, we would consider using those as well.
 
 ### hydra
 We are going to use hydra to *password spray* all the keywords in **silverplatter_keywords.txt** in an attempt to find the password for user scr1ptkiddy.
