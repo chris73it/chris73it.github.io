@@ -4,7 +4,9 @@ title: "TryHackMe: SilverPlatter Walkthrough (Difficulty Easy; Linux machine)"
 date: 2025-07-16
 ---
 
+
 # SilverPlatter Walkthrough (Difficulty Easy; Linux machine)
+
 
 # Overview
 As part of the class [Introduction to Hacking Methodology](https://academy.simplycyber.io/p/introduction-to-hacking-methodology)
@@ -35,6 +37,7 @@ Do not forget to move to the **/tmp** directory:
 ```
 
 This way when we download something or try to output a new file, we will not get "permission denied" errors because we have  no write access to whatever directory we are in; this is especially relevant in our target machine, because the user "tim" we will eventually impersonate has a home directory that is owned by root, and tim himself does not have write access to his own home!
+
 
 # Port Scanning
 We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts:
@@ -87,10 +90,46 @@ Yes, we can ping the targer machine (notice that ping's output tells us the actu
 ### Note
 Not all CLI commands support converting the domain names in **/etc/hosts** so with experience we will have to learn which ones do (like ping) and which ones don't.
 
-# 22/tcp (ssh) OpenSSH 8.9p1 [part 1]
-From the port scanning output we gather that OpenSSH is on version 8.9p1; in general, ssh is not the first thing we would consider hacking, because it is very secure, and this machine is no exception, so we move on.
 
-# Our Strategy For Ports 80 And 8080
+# Our Strategy
+From the output of rustscan/nmap we know that there are 3 ports:
+
+```
+PORT     STATE SERVICE    REASON         VERSION
+22/tcp   open  ssh        syn-ack ttl 61 OpenSSH 8.9p1 Ubuntu 3ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http       syn-ack ttl 61 nginx 1.18.0 (Ubuntu)
+8080/tcp open  http-proxy syn-ack ttl 60
+```
+
+We know that ssh is very secure, so typically is not the primary target of ethical hackers; it is still good to check whether the particular implementation installed on the target machine is vulnerable, but ssh is more of a last resort that is considered only when we have failed to exploit historically more vulnerable protocols like http(s) or smb.
+
+We see that port 80 runs the http protocol, that means our target machine runs a web server behind that port, so the first thing we should do it to point our web browser to http://silverplatter.thm:80 to see what the default web page looks like. Not only, we should also browse around to see whether there are any information leaks that we can use to our advantage, like user names, passwords, etc. We should also click on the View Source feature available on all modern web browsers, and check whether there are any leaks in the source code itself: sometimes even a comment left by a developer may reveal a piece of information that helps us get deeper into our target machine. Finally, we should look for the type of web server and its version that is running on the target machine, and look for known vulnerabilities that we can exploit.
+
+Finally, when nmap says "http-proxy" on port 8080, it means:
+- HTTP-like traffic is running on that port
+- Port 8080 is commonly used for HTTP proxies and web applications
+- nmap's service detection thinks it's most likely a proxy based on the port number and response patterns
+
+Common Scenarios for "http-proxy" on Port 8080 are:
+1. Web Applications: Tomcat servers, Spring Boot applications, Development web servers, Alternative HTTP services, Admin interfaces.
+2. Actual HTTP Proxies: Squid proxy, Corporate web proxies, Reverse proxies.
+3. Other HTTP Services: API endpoints, Microservices, Load balancers, Application servers.
+In our case we will discover that there is a Silverpeas application server running on port 8080, that is not an actual proxy, but a web application.
+
+Sometimes nmap's educated guess is wrong, especially with:
+- Custom applications
+- Non-standard configurations
+- Applications that mimic other services
+
+What should we do when we see "http-proxy" behind a certain port, say 8080?
+- Don't assume it's actually a proxy
+- Browse to it with a web browser (http://target:8080)
+- Use curl to examine headers: curl -I http://target:8080
+- Look for common web app paths: /admin, /login, /app, etc.
+- Run more detailed scans: nmap -sC -sV -p 8080 target
+
+
+# Our Tactics
 Let me give you a little bit of a foreshadow: while examining port 80, we will talk about using hydra hoping to find the password for a user named scr1ptkiddy.
 
 But in order to make hydra work correctly, we will have to already know that we need to point hydra toward port 8080.
@@ -101,6 +140,11 @@ In short:
 1. We pointed the web browser to the web site behind port 80 and from its CONTACT page we discovered that there is a user scr1ptkiddy on a Silverpeas server.
 2. We got a hunch that the Silverpeas server may be located at port 8080 (where rustscan/nmap told us that an http-proxy lives), and so we pointed our web browser to **http://silverplatter.thm:8080/silverpeas** and discovered a login page located at **http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp** .
 3. We now know that we need to point hydra to port 8080 to try finding the password for scr1ptkiddy.
+
+
+# 22/tcp (ssh) OpenSSH 8.9p1 [part 1]
+From the port scanning output we gather that OpenSSH is on version 8.9p1; in general, ssh is not the first thing we would consider hacking, because it is very secure, and this machine is no exception, so we move on.
+
 
 # 80/tcp (http) nginx 1.18.0 (Ubuntu)
 From the port scanning output we gather that nginx (static web server) is on version 1.18.0 and that the operating system is Ubuntu Linux.
@@ -505,6 +549,7 @@ THM{098f6bcd4621d373cade4e832627b4f6}
 ```
 
 And we found the root flag as well!
+
 
 # How We Did It
 1. Initially, we got our foot in the door inside Silverpeas (on port 8080) logging in via:
