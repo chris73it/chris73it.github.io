@@ -12,7 +12,7 @@ date: 2025-07-16
 As part of the class [Introduction to Hacking Methodology](https://academy.simplycyber.io/p/introduction-to-hacking-methodology)
 I took [these notes](https://www.notion.so/Introduction-to-Hacking-Methodology-GitHub-Pages-23346f98ca3080d18194f3b09c709143?source=copy_link) while hacking a machine called silver-platter.
 
-This is an introductory class and the difficulty of the Linux machine is fairly low; still, this is my first time I have managed to hack one (with some help from one video) and I am very proud of it, so I decided to put this page together to help other students like me.
+This is an introductory class and the difficulty of the Linux machine is fairly low; still, this is my first time  have managed to hack one (with some help from one video) and I am very proud of it, so I decided to put this page together to help other students like me.
 My main focus with this walkthrough is in highlighting the reasoning behind the commands, as opposed to simply listing all the required steps without justification or context. I hope you will find it useful.
 
 When you look at my solution, do not get discouraged because you fear you would never think about doing some of these things, instead consider that:
@@ -150,7 +150,7 @@ From the port scanning output we gather that OpenSSH is on version 8.9p1; in gen
 From the port scanning output we gather that nginx (static web server) is on version 1.18.0 and that the operating system is Ubuntu Linux.
 
 ## Any nginx Vulnerabilities?
-We should look for vulnerabilities for version 1.18.0 of nginx, but in this case, after extensive googling, I couldn't find any exploitable vulnerability, so I moved on.
+We should look for vulnerabilities for version 1.18.0 of nginx, but in this case, after extensive googling, no exploitable vulnerability were found, so we moved on.
 
 ## silverplatter.thm:80
 Since on port 80 we have a web server, the first thing we are going to do is to point our web browser to http://silverplatter.thm:80 and visually check the web site.
@@ -201,6 +201,9 @@ cewl --with-numbers http://silverplatter.thm > silverplatter_keywords_nums.txt
 The 2 commands above would respectively add:
 - Two-letter words, if any are present, like "an"
 - Words with digits in them, like "admin123"
+
+###3 Note
+hydra (see next section) has built-in wordlists (/usr/share/wordlists/) as alternatives, so if cewl failed, we would consider using those as well.
 
 ### hydra
 We are going to use hydra to *password spray* all the keywords in **silverplatter_keywords.txt** in an attempt to find the password for user scr1ptkiddy.
@@ -260,13 +263,6 @@ Notice that also hydra takes /silverpeas/AuthenticationServlet as input, because
 What is ^USER^ in the hydra command? In our scenario, ^USER^ stands for scr1ptkiddy, passed to hydra using the -l parameter.
 
 What is ^PASS^  in the hydra command? One by one, it assumes the values of the various passwords in the silverplatter_keywords.txt file, passed to hydra using the -P parameter.
-
-For instance, when ^USER^ is scr1ptkiddy and ^PASS^ is adipiscing, the command passed to /silverpeas/AuthenticationServlet becomes:
-
-```
-hydra -l scr1ptkiddy -P silverplatter_keywords.txt silverplatter.thm -s 8080 http-post-form "/silverpeas/AuthenticationServlet:Login=scr1ptkiddy&Password=adipiscing&DomainId=0:ErrorCode=1"
-```
-The above command will be the one for which the backend will NOT return error.
 
 
 # Exploitation (Use Information Gathered During Reconnaissance)
@@ -394,7 +390,7 @@ tim@ip-10-10-30-149:/tmp$ ls -lad
 drwxrwxrwt 12 root root 4096 Jul 23 01:24 .
 ```
 
-Notice that pretty much anybody can do anything in this directory.
+Pretty much anybody can do anything in this directory.
 
 
 # Privilege Escalation
