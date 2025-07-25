@@ -298,18 +298,18 @@ Now, when we click on the Game Night link, a window opens …
 ### IDOR
 An Insecure Direct Object Reference (IDOR) vulnerability is a type of access control flaw where an application, instead of using an indirect identifier like a session token, directly exposes references to internal objects (like database records, files, or other resources) through user-supplied input. Attackers can exploit this by manipulating these references to gain unauthorized access to other users' data or resources. 
 
-### Note
-We can systematically try all values of ReadMessage starting from 1 and going up, and as soon as we get to 6, we find an important message.
-
+### How To IDOR
 The most straightforward way to try different values for ReadMessage is to copy the original URL:
 `http://silverplatter.thm:8080/silverpeas/RSILVERMAIL/jsp/ReadMessage.jsp?ID=5`
 and open a new tab in our web browser and then paste it as-is, but before pressing the Return key, change the final value, like:
 `http://silverplatter.thm:8080/silverpeas/RSILVERMAIL/jsp/ReadMessage.jsp?ID=1`
 and so on, until it stops providing new and valuable information.
 
+We can systematically try all values of ReadMessage starting from 1 and going up, and as soon as we get to 6, we find an important message.
+
 ![Silverpeas Login Window](/assets/silverpeas-scr1ptkiddy-tim-ssh.webp){: style="border: 2px solid black;"}
 
-From here we gather the following information:
+From the image above, when ReadMessage is set to value 6, we gather the following information:
 - there is an SSH login and password
 - username: tim
 - password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol
